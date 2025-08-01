@@ -1,0 +1,52 @@
+@default = http://127.0.0.1:8001
+@fallback = http://127.0.0.1:8002
+
+# Default
+GET {{default}}/admin/payments-summary?from=2020-07-10T12:34:56.000Z&to=2028-07-10T12:35:56.000Z
+Accept: application/json
+content-type: application/json
+X-Rinha-Token: 123
+
+
+###
+
+# Failure
+PUT {{default}}/admin/configurations/failure
+content-type: application/json
+X-Rinha-Token: 123
+
+{
+    "failure" : false
+}
+
+
+###
+# Failure
+PUT {{default}}/admin/configurations/delay
+content-type: application/json
+X-Rinha-Token: 123
+
+{
+    "delay" : 235
+}
+
+###
+# Failure
+PUT {{fallback}}/admin/configurations/failure
+content-type: application/json
+X-Rinha-Token: 123
+
+{
+    "failure" : true
+}
+
+
+###
+# Failure
+PUT {{fallback}}/admin/configurations/delay
+content-type: application/json
+X-Rinha-Token: 123
+
+{
+    "delay" : 235
+}

@@ -1,0 +1,33 @@
+@server1 = http://localhost:5220
+@server2 = http://localhost:5221
+
+# Default
+POST {{server1}}/payments
+Accept: application/json
+content-type: application/json
+
+
+{
+    "correlationId": "{{$guid}}",
+    "amount": "{{$randomInt 1 12}}.{{$randomInt 1 99}}"
+}
+###
+GET {{server1}}/payments-summary?from=2025-08-01T00:00:03.000Z&to=2025-08-01T01:57:37.000Z
+
+###
+# server 2
+POST {{server2}}/payments
+Accept: application/json
+content-type: application/json
+
+
+{
+    "correlationId": "{{$guid}}",
+    "amount": "{{$randomInt 1 12}}.{{$randomInt 1 99}}"
+}
+###
+GET {{server2}}/payments-summary?from=2025-08-01T00:00:03.000Z&to=2025-08-01T01:57:37.000Z
+
+
+###
+GET http://127.0.0.1:8001/payments/service-health

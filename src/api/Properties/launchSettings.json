@@ -1,0 +1,42 @@
+﻿{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "server1": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5220",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DEFAULT_BASE_URL": "http://127.0.0.1:8001",
+        "FALLBACK_BASE_URL": "http://127.0.0.1:8002",
+        "OTHER_SERVER": "http://localhost:5221",
+        "MASTER_HEALTH_CHECK": "true"
+
+      }
+    },
+    "server2": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5221",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DEFAULT_BASE_URL": "http://127.0.0.1:8001",
+        "FALLBACK_BASE_URL": "http://127.0.0.1:8002",
+        "OTHER_SERVER": "http://localhost:5220",
+        "MASTER_HEALTH_CHECK": "false"
+
+      }
+    },    
+    "https": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "https://localhost:7280;http://localhost:5220",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
