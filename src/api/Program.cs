@@ -6,6 +6,20 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
+string SERVER_NAME = Environment.GetEnvironmentVariable("SERVER_NAME") ?? throw new ArgumentNullException("SERVER_NAME is not configured");
+
+string SOCKET_PATH = $"/run/{SERVER_NAME}.sock";
+
+if (File.Exists(SOCKET_PATH))
+{
+  File.Delete(SOCKET_PATH);
+}
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenUnixSocket(SOCKET_PATH);
+});
+
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
@@ -41,3 +55,5 @@ app.MapPaymentsSummaryEndpoint();
 app.MapUpdateHealthCheckEndpoint();
 
 app.Run();
+
+

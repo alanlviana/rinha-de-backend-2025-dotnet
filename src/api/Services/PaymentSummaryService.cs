@@ -53,8 +53,8 @@ public class Summary
 
     public (long TotalRequests, decimal Sum) SumPaymentsBetween(DateTime from, DateTime to)
     {
-        lock (_lock)
-        {
+        //lock (_lock)
+        //{
             long requestCount = 0;
             decimal sum = 0;
             foreach (var item in _data.Where(kvp => kvp.Key >= from && kvp.Key <= to))
@@ -66,6 +66,6 @@ public class Summary
                 }
             }
             return (requestCount, sum);
-        }
+        //}
     }
 }

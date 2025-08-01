@@ -8,6 +8,7 @@
       "applicationUrl": "http://localhost:5220",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
+        "SERVER_NAME": "SERVER1",
         "DEFAULT_BASE_URL": "http://127.0.0.1:8001",
         "FALLBACK_BASE_URL": "http://127.0.0.1:8002",
         "OTHER_SERVER": "http://localhost:5221",
@@ -22,6 +23,7 @@
       "applicationUrl": "http://localhost:5221",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
+        "SERVER_NAME": "SERVER2",
         "DEFAULT_BASE_URL": "http://127.0.0.1:8001",
         "FALLBACK_BASE_URL": "http://127.0.0.1:8002",
         "OTHER_SERVER": "http://localhost:5220",

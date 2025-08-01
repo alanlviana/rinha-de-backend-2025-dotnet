@@ -10,7 +10,7 @@ namespace api.Worker;
 public class PaymentProcessor : BackgroundService
 {
     private const int POLL_DELAY = 10;
-
+    private readonly int MaxDegreeOfParallelism = int.Parse(Environment.GetEnvironmentVariable("MAX_DEGREE_OF_PARALLELISM") ?? throw new ArgumentException("DEFAULT_BASE_URL is not configured"));
     private readonly string DEFAULT_BASE_URL = Environment.GetEnvironmentVariable("DEFAULT_BASE_URL") ?? throw new ArgumentException("DEFAULT_BASE_URL is not configured");
     private readonly string FALLBACK_BASE_URL = Environment.GetEnvironmentVariable("FALLBACK_BASE_URL") ?? throw new ArgumentException("FALLBACK_BASE_URL is not configured");
     private readonly QueueTransactionService _queueTransactionService;
@@ -51,7 +51,7 @@ public class PaymentProcessor : BackgroundService
         await Parallel.ForEachAsync(channel.Reader.ReadAllAsync(stoppingToken),
             new ParallelOptions()
             {
-                MaxDegreeOfParallelism = 8,
+                MaxDegreeOfParallelism = MaxDegreeOfParallelism,
                 CancellationToken = stoppingToken
             },
             async (transaction, ct) =>
@@ -71,7 +71,7 @@ public class PaymentProcessor : BackgroundService
     }
     private async Task ProcessPayment(NewTransaction transaction, CancellationToken cancellationToken)
     {
-        var paymentProviderBaseUrl = ChoosePaymentProvider();
+        var paymentProviderBaseUrl = await ChoosePaymentProviderAsync(cancellationToken);
 
         _logger.LogDebug($"Processing payment {transaction.CorrelationId}");
         var result = await _httpClient.PostAsJsonAsync(
@@ -104,7 +104,7 @@ public class PaymentProcessor : BackgroundService
         }
     }
 
-    private string ChoosePaymentProvider()
+    private async Task<string> ChoosePaymentProviderAsync(CancellationToken cancellationToken)
     {
         if (_paymentProviderHealthCheckService.Fallback.Failing)
         {
