@@ -9,14 +9,14 @@ public static class PaymentsSummaryEndpoint
 {
     public static void MapPaymentsSummaryEndpoint(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/payments-summary", async ([FromQuery] DateTime from, [FromQuery] DateTime to, [FromServices] PaymentSummaryService paymentSummaryService, [FromQuery] bool betweenServers = false) =>
+        app.MapGet("/payments-summary", async ([FromQuery] DateTime from, [FromQuery] DateTime to, [FromServices] PaymentSummaryService paymentSummaryService, HttpClient httpClient, [FromQuery] bool betweenServers = false) =>
         {
+
             var summaryDefault = paymentSummaryService.SumPaymentsBetweenDefault(from, to);
             var summaryFallback = paymentSummaryService.SumPaymentsBetweenFallback(from, to);
 
             if (!betweenServers)
             {
-                var httpClient = new HttpClient();
                 var OTHER_SERVER = Environment.GetEnvironmentVariable("OTHER_SERVER");
                 var request = new HttpRequestMessage(HttpMethod.Get, $"{OTHER_SERVER}/payments-summary?betweenServers=true&to={to.ToString("O")}&from={from.ToString("O")}");
                 var response = await httpClient.SendAsync(request);

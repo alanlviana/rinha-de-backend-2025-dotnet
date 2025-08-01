@@ -16,12 +16,16 @@ public class PaymentProcessor : BackgroundService
     private readonly QueueTransactionService _queueTransactionService;
     private readonly PaymentSummaryService _paymentSummaryService;
     private readonly PaymentProviderHealthCheckService _paymentProviderHealthCheckService;
+    private readonly HttpClient _httpClient;
+    private readonly ILogger<PaymentProcessor>  _logger;
 
-    public PaymentProcessor(QueueTransactionService queueTransactionService, PaymentSummaryService paymentSummaryService, PaymentProviderHealthCheckService paymentProviderHealthCheckService)
+    public PaymentProcessor(ILogger<PaymentProcessor> logger,QueueTransactionService queueTransactionService, PaymentSummaryService paymentSummaryService, PaymentProviderHealthCheckService paymentProviderHealthCheckService, HttpClient httpClient)
     {
+        this._logger = logger;
         this._queueTransactionService = queueTransactionService;
         this._paymentSummaryService = paymentSummaryService;
         this._paymentProviderHealthCheckService = paymentProviderHealthCheckService;
+        this._httpClient = httpClient;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -58,6 +62,7 @@ public class PaymentProcessor : BackgroundService
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError(ex,"Exception ao processa pagamento, retornado a fila.");
                     _queueTransactionService.EnqueueTransaction(transaction);
                 }
             }
@@ -68,9 +73,8 @@ public class PaymentProcessor : BackgroundService
     {
         var paymentProviderBaseUrl = ChoosePaymentProvider();
 
-        Console.WriteLine($"Processing payment {transaction.CorrelationId}");
-        HttpClient httpClient = new HttpClient();
-        var result = await httpClient.PostAsJsonAsync(
+        _logger.LogDebug($"Processing payment {transaction.CorrelationId}");
+        var result = await _httpClient.PostAsJsonAsync(
             $"{paymentProviderBaseUrl}/payments/",
             transaction,
             NewTransactionJsonContext.Default.NewTransaction,
@@ -79,16 +83,24 @@ public class PaymentProcessor : BackgroundService
 
         if (result.IsSuccessStatusCode)
         {
-            _paymentSummaryService.AddTransactionDefault(transaction);
-            Console.WriteLine($"Payment process succefully - {transaction.Amount} - {paymentProviderBaseUrl} - {transaction.CorrelationId} - {transaction.RequestedAt.ToString("R")} - 200");
+            if (paymentProviderBaseUrl == DEFAULT_BASE_URL)
+            {
+                _paymentSummaryService.AddTransactionDefault(transaction);
+            }
+            else
+            {
+                _paymentSummaryService.AddTransactionFallback(transaction);
+            }
+            _logger.LogDebug($"Payment process succefully - {transaction.Amount} - {paymentProviderBaseUrl} - {transaction.CorrelationId} - {transaction.RequestedAt.ToString("R")} - 200");
         }
         else if (Is4xxClientError(result.StatusCode))
         {
-            Console.WriteLine($"Payment process failed - {paymentProviderBaseUrl} - {transaction.CorrelationId} - {result.StatusCode}");
+            _logger.LogWarning($"Payment process failed - {paymentProviderBaseUrl} - {transaction.CorrelationId} - {result.StatusCode}");
         }
         else
         {
-            throw new Exception("Status code is not 2XX or 4XX");
+            _queueTransactionService.EnqueueTransaction(transaction);
+            _logger.LogError("Falha ao processa pagamento, retornado a fila.");
         }
     }
 

@@ -2,6 +2,8 @@ using api.Config;
 using api.Endpoints;
 using api.Services;
 using api.Worker;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
   options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
 });
 
+builder.Services.AddHttpClient();
+builder.Services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
 builder.Services.AddSingleton<QueueTransactionService>();
 builder.Services.AddSingleton<PaymentSummaryService>();
 builder.Services.AddSingleton<PaymentProviderHealthCheckService>();

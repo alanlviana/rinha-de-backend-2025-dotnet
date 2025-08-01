@@ -18,6 +18,12 @@ public struct NewTransaction
     {
         CorrelationId = correlationId;
         Amount = amount;
-        RequestedAt = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
+        var truncated = new DateTime(
+            now.Year, now.Month, now.Day,
+            now.Hour, now.Minute, now.Second,
+            now.Kind
+        );
+        RequestedAt = truncated;
     }
 }

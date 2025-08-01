@@ -1,4 +1,4 @@
-@server1 = http://localhost:5220
+@server1 = http://localhost:9999
 @server2 = http://localhost:5221
 
 # Default
@@ -12,7 +12,7 @@ content-type: application/json
     "amount": "{{$randomInt 1 12}}.{{$randomInt 1 99}}"
 }
 ###
-GET {{server1}}/payments-summary?from=2025-08-01T00:00:03.000Z&to=2025-08-01T01:57:37.000Z
+GET {{server1}}/payments-summary?from=2025-08-01T00:00:03.000Z&to=2026-08-01T01:57:37.000Z
 
 ###
 # server 2

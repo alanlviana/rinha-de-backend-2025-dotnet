@@ -1,0 +1,74 @@
+services:
+
+  load-balancer:
+    container_name: load-balancer
+    image: nginx:latest
+    ports:
+      - "9999:9999"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api-1
+      - api-2
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: "40MB"
+  api-1:
+    container_name: api-1
+    hostname: api1
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://0.0.0.0:8080
+      - DEFAULT_BASE_URL=http://payment-processor-default:8080
+      - FALLBACK_BASE_URL=http://payment-processor-fallback:8080
+      - OTHER_SERVER=http://api2:8080
+      - MASTER_HEALTH_CHECK=true
+    ports:
+      - "5001:8080"
+    networks:
+      - backend
+      - payment-processor
+    deploy:
+      resources:
+        limits:
+          cpus: "0.7"
+          memory: "155MB"
+  api-2:
+    container_name: api-2
+    hostname: api2
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://0.0.0.0:8080
+      - DEFAULT_BASE_URL=http://payment-processor-default:8080
+      - FALLBACK_BASE_URL=http://payment-processor-fallback:8080
+      - OTHER_SERVER=http://api1:8080
+      - MASTER_HEALTH_CHECK=false      
+    ports:
+      - "5002:8080"
+    networks:
+      - backend
+      - payment-processor
+    deploy:
+      resources:
+        limits:
+          cpus: "0.6"
+          memory: "155MB"        
+
+networks:
+  backend:
+    name: backend
+    driver: bridge
+  payment-processor:
+    name: payment-processor
+    driver: bridge
+    external: true                
