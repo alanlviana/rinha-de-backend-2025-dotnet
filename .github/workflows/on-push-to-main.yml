@@ -52,9 +52,9 @@ jobs:
       - name: Build and push Docker images
         uses: docker/build-push-action@v5.1.0
         with:
-          context: .
+          context: ./src/
           push: true
-          file: ./src/Dockerfile
+          file: ./Dockerfile
           target: prod
           platforms: linux/amd64,linux/arm64
           tags: |
