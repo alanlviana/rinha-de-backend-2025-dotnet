@@ -7,7 +7,7 @@ COPY . ./
 RUN dotnet restore
 RUN dotnet publish api/api.csproj -c Release --property PublishDir=out
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS prod
 WORKDIR /app
 COPY --from=build /app/api/out .
 
