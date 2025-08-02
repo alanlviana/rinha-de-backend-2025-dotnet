@@ -16,7 +16,6 @@ public static class PaymentsSummaryEndpoint
     {
         app.MapGet("/payments-summary", async ([FromQuery] DateTime from, [FromQuery] DateTime to, [FromServices] PaymentSummaryService paymentSummaryService, [FromQuery] bool betweenServers = false) =>
         {
-
             var summaryDefault = paymentSummaryService.SumPaymentsBetweenDefault(from, to);
             var summaryFallback = paymentSummaryService.SumPaymentsBetweenFallback(from, to);
 

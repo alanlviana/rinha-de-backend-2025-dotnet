@@ -50,9 +50,11 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 
+
 app.MapCreatePaymentsEndpoint();
 app.MapPaymentsSummaryEndpoint();
 app.MapUpdateHealthCheckEndpoint();
+app.MapDownloadTransactionsEndpoint();
 
 app.Run();
 

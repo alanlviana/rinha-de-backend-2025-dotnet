@@ -5,6 +5,7 @@ using api.Services;
 
 namespace api.Config;
 
+[JsonSerializable(typeof(List<NewTransaction>))]
 [JsonSerializable(typeof(NewTransaction))]
 [JsonSerializable(typeof(PaymentProviderSummary))]
 [JsonSerializable(typeof(PaymentSummary))]
