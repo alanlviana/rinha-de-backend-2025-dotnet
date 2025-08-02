@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 using api.Config;
 using api.Models;
 using api.Services;
-using api.Util;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Endpoints;
@@ -22,8 +21,8 @@ public static class DownloadTransactionsEndpoint
             var remoteTransactions = new List<NewTransaction>();
             if (!betweenServers)
             {
-                var httpClient = SocketHttpClient.HttpClient(OTHER_SERVER);
-                var request = new HttpRequestMessage(HttpMethod.Get, $"http://socket/transactions/download?betweenServers=true");
+                var httpClient = new HttpClient();
+                var request = new HttpRequestMessage(HttpMethod.Get, $"http://{OTHER_SERVER}/transactions/download?betweenServers=true");
                 var response = await httpClient.SendAsync(request);
                 response.EnsureSuccessStatusCode();
                 var otherServerTransactions = await response.Content.ReadFromJsonAsync(AppJsonSerializerContext.Default.ListNewTransaction);

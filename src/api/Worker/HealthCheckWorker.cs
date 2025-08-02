@@ -2,7 +2,6 @@
 using System.Text.Json.Serialization;
 using api.Endpoints;
 using api.Services;
-using api.Util;
 
 namespace api.Worker;
 
@@ -66,8 +65,8 @@ public class HealthCheckWorker : BackgroundService
 
     private async Task UpdateOtherServer(PaymentProviderHealthCheck defaultHealthCheck, PaymentProviderHealthCheck fallbackHealthCheck)
     {
-        var httpClient = SocketHttpClient.HttpClient(OTHER_SERVER);
-        var response = await httpClient.PostAsJsonAsync($"http://socket/updateHealthChecks",
+        var httpClient = new HttpClient();
+        var response = await httpClient.PostAsJsonAsync($"http://{OTHER_SERVER}/updateHealthChecks",
             new UpdateHealthCheck()
             {
                 Default = defaultHealthCheck,
