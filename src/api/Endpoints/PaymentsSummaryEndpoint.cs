@@ -12,15 +12,18 @@ public static class PaymentsSummaryEndpoint
 
     public static void MapPaymentsSummaryEndpoint(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/payments-summary", async ([FromQuery] DateTime from, [FromQuery] DateTime to, [FromServices] PaymentSummaryService paymentSummaryService, [FromQuery] bool betweenServers = false) =>
+        app.MapGet("/payments-summary", async ([FromServices] PaymentSummaryService paymentSummaryService,[FromQuery] DateTime? from, [FromQuery] DateTime? to, [FromQuery] bool betweenServers = false) =>
         {
-            var summaryDefault = paymentSummaryService.SumPaymentsBetweenDefault(from, to);
-            var summaryFallback = paymentSummaryService.SumPaymentsBetweenFallback(from, to);
+            DateTime actualFrom = from ?? DateTime.MinValue; 
+            DateTime actualTo = to ?? DateTime.MaxValue; 
+
+            var summaryDefault = paymentSummaryService.SumPaymentsBetweenDefault(actualFrom, actualTo);
+            var summaryFallback = paymentSummaryService.SumPaymentsBetweenFallback(actualFrom, actualTo);
 
             if (!betweenServers)
             {
                 var httpClient = new HttpClient();
-                var request = new HttpRequestMessage(HttpMethod.Get, $"http://{OTHER_SERVER}/payments-summary?betweenServers=true&to={to.ToString("O")}&from={from.ToString("O")}");
+                var request = new HttpRequestMessage(HttpMethod.Get, $"http://{OTHER_SERVER}/payments-summary?betweenServers=true&to={actualTo.ToString("O")}&from={actualFrom.ToString("O")}");
                 var response = await httpClient.SendAsync(request);
                 response.EnsureSuccessStatusCode();
                 var otherServerSummary = await response.Content.ReadFromJsonAsync(PaymentSummaryJsonContext.Default.PaymentSummary);
